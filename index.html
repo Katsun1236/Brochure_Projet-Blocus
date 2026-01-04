@@ -96,29 +96,48 @@
             flex-direction: column;
         }
 
-        /* COUVERTURE (première page double) */
+        /* COUVERTURE (première page) */
         .cover-page {
             left: 450px;
-            transform-origin: left;
             z-index: 3;
         }
 
-        /* État 1 : Mission à gauche, Fonctionnalités à droite */
+        /* État 1 et 2 : Couverture cachée */
         .brochure.state-1 .cover-page,
         .brochure.state-2 .cover-page {
-            transform: rotateY(-180deg) translateX(-450px);
+            transform: translateX(-900px);
+            opacity: 0;
         }
 
-        /* PAGE INTÉRIEURE (deuxième page double) */
+        /* PAGE MISSION (page gauche) */
+        .mission-page {
+            left: 0;
+            z-index: 2;
+            display: none;
+        }
+
+        /* Visible en état 1 uniquement */
+        .brochure.state-1 .mission-page {
+            display: block;
+        }
+
+        /* PAGE INTÉRIEURE (Fonctionnalités + CTA) */
         .inner-page {
             left: 450px;
             transform-origin: left;
             z-index: 2;
+            display: none;
         }
 
-        /* État 2 : Fonctionnalités à gauche, CTA à droite */
+        /* Visible en états 1 et 2 */
+        .brochure.state-1 .inner-page,
         .brochure.state-2 .inner-page {
-            transform: rotateY(-180deg);
+            display: block;
+        }
+
+        /* État 2 : Page intérieure tourne et se décale pour montrer Fonctionnalités (gauche) + CTA (droite) */
+        .brochure.state-2 .inner-page {
+            transform: rotateY(-180deg) translateX(-450px);
         }
 
         /* PAGE FIXE DE GAUCHE (supprimée, toujours cachée) */
@@ -466,7 +485,7 @@
 
             <!-- COUVERTURE (page double 1) -->
             <div class="page-double cover-page">
-                <!-- RECTO : Couverture -->
+                <!-- RECTO : Couverture uniquement -->
                 <div class="page-front cover-front">
                     <div class="page-content">
                         <img src="assets/images/Locus_logo2.png"
@@ -477,9 +496,11 @@
                         <div class="badge">HEAJ 2026 • Bastien Festor</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- VERSO : Mission -->
-                <div class="page-back">
+            <!-- PAGE MISSION (page indépendante gauche) -->
+            <div class="page-double mission-page">
+                <div class="page-front">
                     <div class="page-content">
                         <h2 class="page-title">Notre Mission</h2>
                         <p class="mission-text">

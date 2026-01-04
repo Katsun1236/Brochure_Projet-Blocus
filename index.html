@@ -5,30 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brochure Interactive 3D - Projet Blocus</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --indigo-600: #4f46e5;
-            --indigo-500: #6366f1;
-            --orange-500: #f97316;
-            --slate-900: #0f172a;
-            --paper-white: #ffffff;
-            --neon-glow: #818cf8;
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --purple: #A78BFA;
+            --dark: #1A1A2E;
+            --light: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background: radial-gradient(circle at center, #f8fafc 0%, #e2e8f0 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: 'Plus Jakarta Sans', sans-serif;
             overflow: hidden;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            perspective: 2500px;
             position: relative;
         }
 
-        /* Particules flottantes en arrière-plan */
+        /* Motif de fond animé */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.03) 10px, rgba(255,255,255,0.03) 20px),
+                repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(255,255,255,0.03) 10px, rgba(255,255,255,0.03) 20px);
+            animation: slide 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes slide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(20px, 20px); }
+        }
+
+        /* Particules flottantes colorées */
         .particles {
             position: fixed;
             top: 0;
@@ -41,642 +66,678 @@
 
         .particle {
             position: absolute;
-            width: 4px;
-            height: 4px;
-            background: var(--indigo-500);
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            opacity: 0.3;
-            animation: float-particle 20s infinite ease-in-out;
+            opacity: 0.6;
+            animation: float-particle 25s infinite ease-in-out;
         }
 
         @keyframes float-particle {
             0%, 100% {
-                transform: translateY(0) translateX(0);
+                transform: translateY(100vh) translateX(0) scale(0);
                 opacity: 0;
             }
             10% {
-                opacity: 0.3;
+                opacity: 0.6;
             }
             50% {
-                transform: translateY(-100vh) translateX(50px);
-                opacity: 0.3;
+                transform: translateY(-20vh) translateX(100px) scale(1.5);
+                opacity: 0.8;
             }
             90% {
-                opacity: 0.1;
+                opacity: 0.3;
             }
         }
 
-        /* --- STRUCTURE DU TRIPTYQUE --- */
+        /* Conteneur de la scène */
         .scene {
-            width: 400px;
-            height: 550px;
+            width: 450px;
+            height: 600px;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 10;
+            perspective: 3000px;
         }
 
-        /* Conteneur de la brochure */
+        /* Brochure */
         .brochure {
             width: 100%;
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* Style de base d'un panneau avec texture papier */
-        .panel {
+        /* Pages de la brochure */
+        .page {
             position: absolute;
             width: 100%;
             height: 100%;
-            background: var(--paper-white);
             backface-visibility: hidden;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.02);
-            border-radius: 4px;
+            border-radius: 12px;
             overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.05);
-            /* Texture de papier subtile */
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.01) 2px, rgba(0,0,0,0.01) 4px),
-                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.01) 2px, rgba(0,0,0,0.01) 4px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            border: 3px solid rgba(255,255,255,0.2);
         }
 
-        /* Effet de brillance sur les panneaux */
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.6s ease;
-            pointer-events: none;
-        }
-
-        .brochure.open .panel::before {
-            left: 100%;
-        }
-
-        /* --- VOLET GAUCHE (Interieur Problème) --- */
-        .panel-left {
-            transform-origin: right;
-            left: -100%;
-            transform: rotateY(180deg);
-            z-index: 2;
-            transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        /* --- VOLET CENTRAL (Fixe - Solutions) --- */
-        .panel-center {
-            z-index: 1;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-        }
-
-        /* --- VOLET DROIT (Couverture / CTA) --- */
-        .panel-right {
-            transform-origin: left;
-            left: 100%;
-            transform: rotateY(-180deg);
-            z-index: 2;
-            transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        /* --- ÉTATS OUVERT / FERMÉ --- */
-        .brochure.closed .panel-left {
-            transform: rotateY(175deg);
-            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .brochure.closed .panel-right {
-            transform: rotateY(-175deg);
-            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* État "Fermé" vue de face (La couverture) */
-        .cover {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--indigo-600), #6366f1, #818cf8);
-            color: white;
-            z-index: 10;
-            backface-visibility: hidden;
-            transform-origin: left;
-            transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* PAGE 1 : COUVERTURE */
+        .page-cover {
+            z-index: 4;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 50%, #FFD93D 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2.5rem;
+            padding: 3rem;
             text-align: center;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.1), 0 0 40px rgba(129, 140, 248, 0.3);
-            cursor: pointer;
+            position: relative;
             overflow: hidden;
         }
 
-        /* Effet de brillance sur la couverture */
-        .cover::after {
+        .page-cover::before {
             content: '';
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(to left, rgba(255,255,255,0.15), transparent);
-            pointer-events: none;
-            animation: shimmer 3s infinite;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 20px,
+                rgba(255,255,255,0.05) 20px,
+                rgba(255,255,255,0.05) 40px
+            );
+            animation: rotate 30s linear infinite;
         }
 
-        @keyframes shimmer {
-            0%, 100% {
-                opacity: 0.5;
-            }
-            50% {
-                opacity: 1;
-            }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        /* Logo avec effet de parallax */
-        .logo-container {
-            width: 160px;
-            height: 160px;
-            margin-bottom: 1.5rem;
+        .page-cover .logo {
+            width: 180px;
+            height: 180px;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));
+            animation: float-logo 4s ease-in-out infinite;
             position: relative;
+            z-index: 2;
+        }
+
+        .page-cover h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 40px rgba(255,255,255,0.5);
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-cover .subtitle {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.95);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            margin-bottom: 2rem;
+            background: rgba(0,0,0,0.1);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-cover .badge {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255,255,255,0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* PAGE 2 : INTÉRIEUR COUVERTURE (Mission) */
+        .page-inside-cover {
+            z-index: 3;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform-origin: left;
+            transform: rotateY(0deg);
+            transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .brochure.state-1 .page-inside-cover,
+        .brochure.state-2 .page-inside-cover,
+        .brochure.state-3 .page-inside-cover {
+            transform: rotateY(-180deg);
+        }
+
+        .mission-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .mission-content {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid rgba(255,255,255,0.2);
+            margin-bottom: 2rem;
+        }
+
+        .mission-text {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.3);
             transition: transform 0.3s ease;
         }
 
-        .logo-container:hover {
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(255,230,109,0.5);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* PAGE 3 : FONCTIONNALITÉS */
+        .page-features {
+            z-index: 2;
+            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .features-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .feature-item {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-item:hover {
+            transform: translateX(10px);
+            background: rgba(255,255,255,0.3);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+            transition: transform 0.3s ease;
+        }
+
+        .feature-item:hover .feature-icon {
             transform: scale(1.1) rotate(5deg);
         }
 
-        .logo-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3));
-            animation: float-logo 4s ease-in-out infinite;
+        .feature-content h3 {
+            font-size: 1rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        @keyframes float-logo {
-            0%, 100% {
-                transform: translateY(0px) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-15px) rotate(3deg);
-            }
+        .feature-content p {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.95);
+            font-weight: 600;
+            line-height: 1.5;
         }
 
-        /* Effet de lueur pulsante */
-        .glow-pulse {
-            animation: glow 2s ease-in-out infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% {
-                text-shadow: 0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(129, 140, 248, 0.3);
-            }
-            50% {
-                text-shadow: 0 0 20px rgba(255,255,255,0.8), 0 0 30px rgba(129, 140, 248, 0.5), 0 0 40px rgba(129, 140, 248, 0.3);
-            }
-        }
-
-        .brochure.open .cover {
-            transform: rotateY(-160deg);
-        }
-
-        /* Animation d'entrée au chargement */
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .scene {
-            animation: slideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        /* --- DESIGN DES CONTENUS --- */
-        .mascot-container {
-            width: 140px;
-            height: 140px;
-            margin-bottom: 1.5rem;
-            position: relative;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .mascot-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
-        }
-
-        .feature-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-left: 4px solid var(--indigo-600);
-            transition: all 0.3s ease;
-            cursor: pointer;
+        /* PAGE 4 : DOS (CTA) */
+        .page-back {
+            z-index: 1;
+            background: linear-gradient(135deg, #F093FB 0%, #F5576C 100%);
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
             position: relative;
             overflow: hidden;
         }
 
-        .feature-card::before {
+        .page-back::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            top: 50%;
+            left: 50%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            animation: pulse-glow 3s ease-in-out infinite;
         }
 
-        .feature-card:hover {
-            transform: translateX(8px) translateY(-4px);
-            box-shadow: -8px 8px 20px rgba(79, 70, 229, 0.2), 0 0 30px rgba(129, 140, 248, 0.1);
+        @keyframes pulse-glow {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
         }
 
-        .feature-card:hover::before {
-            opacity: 1;
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
         }
 
-        .feature-card-icon {
-            width: 40px;
-            height: 40px;
-            margin-bottom: 0.5rem;
-            object-fit: contain;
+        .cta-subtitle {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.95);
+            margin-bottom: 2.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 25px;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
             transition: transform 0.3s ease;
         }
 
-        .feature-card:hover .feature-card-icon {
-            transform: scale(1.2) rotate(5deg);
+        .qr-container:hover {
+            transform: scale(1.05) rotate(2deg);
         }
 
-        .brochure.open .feature-card {
-            animation: fadeInUp 0.5s ease forwards;
-            opacity: 0;
+        .qr-code {
+            width: 150px;
+            height: 150px;
         }
 
-        .brochure.open .feature-card:nth-child(1) { animation-delay: 0.2s; }
-        .brochure.open .feature-card:nth-child(2) { animation-delay: 0.4s; }
-        .brochure.open .feature-card:nth-child(3) { animation-delay: 0.6s; }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .cta-button {
-            background: linear-gradient(135deg, var(--orange-500), #fb923c);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 9999px;
-            font-weight: 800;
-            font-size: 0.75rem;
+        .cta-button-big {
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
+            color: var(--dark);
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3), 0 0 20px rgba(249, 115, 22, 0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
             border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 0 0 rgba(255,107,107,0.5);
+            transition: all 0.3s ease;
             position: relative;
+            z-index: 2;
             overflow: hidden;
         }
 
-        .cta-button::before {
+        .cta-button-big::before {
             content: '';
             position: absolute;
             top: 50%;
             left: 50%;
             width: 0;
             height: 0;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255,255,255,0.4);
             border-radius: 50%;
             transform: translate(-50%, -50%);
             transition: width 0.6s ease, height 0.6s ease;
         }
 
-        .cta-button:hover::before {
-            width: 300px;
-            height: 300px;
+        .cta-button-big:hover::before {
+            width: 400px;
+            height: 400px;
         }
 
-        .cta-button:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.5), 0 0 40px rgba(249, 115, 22, 0.3);
+        .cta-button-big:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4), 0 0 0 20px rgba(255,107,107,0.2);
         }
 
-        .cta-button:active {
+        .cta-button-big:active {
             transform: translateY(0) scale(1);
         }
 
-        /* Statistiques animées */
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #dc2626, #f97316);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: inline-block;
-        }
-
-        .stat-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.1), transparent);
-            animation: scan 3s infinite;
-        }
-
-        @keyframes scan {
-            0% {
-                left: -100%;
-            }
-            100% {
-                left: 100%;
-            }
-        }
-
-        /* Mascotte interactive */
-        .mascot-interactive {
-            transition: transform 0.3s ease, filter 0.3s ease;
-            cursor: pointer;
-        }
-
-        .mascot-interactive:hover {
-            transform: scale(1.1) rotate(-5deg);
-            filter: drop-shadow(0 15px 30px rgba(79, 70, 229, 0.4));
-        }
-
-        .mascot-interactive:active {
-            transform: scale(0.95);
-        }
-
-        .qr-placeholder {
+        .mascot-cta {
             width: 100px;
             height: 100px;
-            background: white;
-            padding: 8px;
-            border-radius: 10px;
-            margin: 0 auto;
-            border: 2px solid #e2e8f0;
+            margin-top: 1rem;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+            animation: bounce 2s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
         }
 
-        /* --- INDICATEUR --- */
-        .instruction {
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Boutons de navigation */
+        .nav-buttons {
             position: fixed;
             bottom: 40px;
-            background: var(--slate-900);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            pointer-events: none;
-            animation: pulse 2s infinite;
-            transition: opacity 0.3s ease;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
         }
 
-        .instruction.hidden {
-            opacity: 0;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* Fallback Mascot */
-        .mascot-fallback {
-            width: 80px;
-            height: 80px;
+        .nav-btn {
+            width: 60px;
+            height: 60px;
             background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255,255,255,0.4);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
 
-        .hidden {
-            display: none;
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
         }
 
-        /* Effet de grain de papier */
-        .panel::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        .nav-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .nav-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            stroke-width: 3;
+        }
+
+        .page-indicator {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255,255,255,0.4);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            color: white;
+            font-weight: 800;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        /* États de la brochure */
+        .brochure.state-0 {
+            transform: rotateY(0deg);
+        }
+
+        .brochure.state-1 {
+            transform: rotateY(-30deg);
+        }
+
+        .brochure.state-2 {
+            transform: rotateY(-90deg);
+        }
+
+        .brochure.state-3 {
+            transform: rotateY(-150deg);
+        }
+
+        /* Masquer les pages selon l'état */
+        .brochure.state-0 .page-features,
+        .brochure.state-0 .page-back {
+            opacity: 0;
             pointer-events: none;
-            opacity: 0.5;
         }
 
-        /* Ombres portées dynamiques */
-        .brochure.open .panel-left {
-            box-shadow: -5px 5px 25px rgba(0,0,0,0.15);
-        }
-
-        .brochure.open .panel-right {
-            box-shadow: 5px 5px 25px rgba(0,0,0,0.15);
+        .brochure.state-1 .page-back {
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Particules flottantes en arrière-plan -->
+    <!-- Particules flottantes -->
     <div class="particles" id="particles"></div>
 
-    <div class="instruction" id="instruction">Cliquer pour ouvrir la brochure</div>
+    <!-- Scène principale -->
+    <div class="scene">
+        <div class="brochure state-0" id="brochure">
 
-    <div class="scene" id="scene">
-        <div class="brochure closed" id="brochure" onclick="toggleBrochure()">
-
-            <!-- 1. LA COUVERTURE (RECTO) -->
-            <div class="cover" id="cover">
-                <div class="logo-container">
-                    <!-- Logo principal animé -->
-                    <img src="assets/images/Locus_logo2.png"
-                         onerror="this.src='assets/images/locus_base.png'"
-                         class="logo-img" alt="Projet Blocus">
-                </div>
-                <h1 class="text-3xl font-extrabold tracking-tighter mb-2 glow-pulse">PROJET BLOCUS</h1>
-                <p class="text-indigo-100 text-sm mb-12 font-medium">L'IA qui transforme ton syllabus en réussite.</p>
-                <div class="w-full h-1 bg-white/20 rounded-full mb-8"></div>
-                <p class="text-[10px] uppercase tracking-[0.3em] font-black opacity-60">HEAJ 2026 - Bastien Festor</p>
+            <!-- PAGE 1 : COUVERTURE -->
+            <div class="page page-cover">
+                <img src="assets/images/Locus_logo2.png"
+                     onerror="this.src='assets/images/locus_base.png'"
+                     class="logo" alt="Projet Blocus">
+                <h1>PROJET<br>BLOCUS</h1>
+                <p class="subtitle">L'IA qui transforme<br>ton syllabus en réussite</p>
+                <div class="badge">HEAJ 2026 • Bastien Festor</div>
             </div>
 
-            <!-- 2. PANNEAU GAUCHE (LE CONSTAT / PROBLÈME) -->
-            <div class="panel panel-left p-8">
-                <div class="flex items-center gap-2 mb-6">
-                    <div class="w-8 h-8 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    </div>
-                    <h2 class="font-black text-slate-900 uppercase text-sm tracking-widest">Le Constat</h2>
-                </div>
-                <p class="text-xs text-slate-500 leading-relaxed mb-6">Le blocus est une période de stress intense où 80% du temps est gâché en tâches administratives.</p>
+            <!-- PAGE 2 : INTÉRIEUR COUVERTURE (Mission) -->
+            <div class="page page-inside-cover">
+                <h2 class="mission-title">Notre Mission</h2>
 
-                <div class="space-y-4">
-                    <div class="p-4 bg-rose-50 rounded-xl border border-rose-100 stat-card">
-                        <span class="block stat-number" id="stat1">0%</span>
-                        <p class="text-[10px] text-slate-600 font-bold uppercase">des étudiants sont débordés par leurs synthèses.</p>
-                    </div>
-                    <div class="p-4 bg-amber-50 rounded-xl border border-amber-100 stat-card">
-                        <span class="block font-black text-amber-600 text-xl mb-1" id="stat2">0h</span>
-                        <p class="text-[10px] text-slate-600 font-bold uppercase">perdues par semaine en tâches répétitives.</p>
-                    </div>
+                <div class="mission-content">
+                    <p class="mission-text">
+                        Le blocus est une période cruciale mais stressante.
+                        <strong>80% du temps</strong> est perdu en tâches administratives
+                        au lieu de se concentrer sur l'apprentissage.
+                    </p>
+                    <p class="mission-text">
+                        <strong>Projet Blocus</strong> utilise l'IA pour automatiser
+                        ces tâches et te permettre de te concentrer sur ce qui compte vraiment :
+                        <strong>réussir tes examens</strong>.
+                    </p>
                 </div>
 
-                <div class="mt-auto pt-6 text-center">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number" id="stat1">0%</span>
+                        <span class="stat-label">Étudiants débordés</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number" id="stat2">0h</span>
+                        <span class="stat-label">Perdues/semaine</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
                     <img src="assets/images/locus_question.png"
                          onerror="this.src='assets/images/locus_sommeil.png'"
-                         class="w-32 mx-auto drop-shadow-xl mascot-interactive" alt="Locus perplexe">
+                         style="width: 120px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));"
+                         alt="Locus">
                 </div>
             </div>
 
-            <!-- 3. PANNEAU CENTRAL (SOLUTIONS) -->
-            <div class="panel panel-center p-8">
-                <div class="text-center mb-8">
-                    <h2 class="text-indigo-600 font-black text-lg uppercase tracking-tighter">Écosystème Intelligent</h2>
-                    <div class="w-12 h-1 bg-indigo-600 mx-auto mt-2"></div>
-                </div>
+            <!-- PAGE 3 : FONCTIONNALITÉS -->
+            <div class="page page-features">
+                <h2 class="features-title">Fonctionnalités</h2>
 
-                <div class="space-y-3">
-                    <div class="feature-card">
-                        <img src="assets/images/locus_lecture.png"
-                             onerror="this.src='assets/images/locus_base.png'"
-                             class="feature-card-icon" alt="Synthèse">
-                        <h4 class="font-bold text-[10px] uppercase text-indigo-600 mb-1 tracking-wider">Synthèse Magique</h4>
-                        <p class="text-[9px] text-slate-500 leading-tight">Uploade ton cours. L'IA génère ton résumé structuré en 60 secondes chrono.</p>
-                    </div>
-                    <div class="feature-card">
-                        <img src="assets/images/locus_oeil.png"
-                             onerror="this.src='assets/images/locus_base.png'"
-                             class="feature-card-icon" alt="Mémorisation">
-                        <h4 class="font-bold text-[10px] uppercase text-indigo-600 mb-1 tracking-wider">Mémorisation Active</h4>
-                        <p class="text-[9px] text-slate-500 leading-tight">Génère des Quiz et Flashcards basés sur tes propres notes pour valider tes acquis.</p>
-                    </div>
-                    <div class="feature-card">
-                        <img src="assets/images/locus_casque.png"
-                             onerror="this.src='assets/images/locus_base.png'"
-                             class="feature-card-icon" alt="Focus">
-                        <h4 class="font-bold text-[10px] uppercase text-indigo-600 mb-1 tracking-wider">Focus Pomodoro</h4>
-                        <p class="text-[9px] text-slate-500 leading-tight">Reste concentré avec notre minuteur et suis tes objectifs de session.</p>
+                <div class="feature-item">
+                    <img src="assets/images/locus_lecture.png"
+                         onerror="this.src='assets/images/locus_base.png'"
+                         class="feature-icon" alt="Synthèse">
+                    <div class="feature-content">
+                        <h3>📚 Synthèse Magique</h3>
+                        <p>Uploade ton cours, l'IA génère ton résumé structuré en 60 secondes.</p>
                     </div>
                 </div>
 
-                <div class="mt-8 text-center">
+                <div class="feature-item">
+                    <img src="assets/images/locus_oeil.png"
+                         onerror="this.src='assets/images/locus_base.png'"
+                         class="feature-icon" alt="Quiz">
+                    <div class="feature-content">
+                        <h3>🧠 Mémorisation Active</h3>
+                        <p>Quiz et Flashcards générés automatiquement pour valider tes acquis.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <img src="assets/images/locus_casque.png"
+                         onerror="this.src='assets/images/locus_base.png'"
+                         class="feature-icon" alt="Focus">
+                    <div class="feature-content">
+                        <h3>⏱️ Focus Pomodoro</h3>
+                        <p>Minuteur intelligent pour rester concentré et suivre tes objectifs.</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 1.5rem;">
                     <img src="assets/images/locus_presentation.png"
                          onerror="this.src='assets/images/locus_base.png'"
-                         class="w-32 mx-auto mascot-interactive" alt="Locus enseigne">
+                         style="width: 100px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));"
+                         alt="Locus">
                 </div>
             </div>
 
-            <!-- 4. PANNEAU DROIT (BÉNÉFICES & CTA) -->
-            <div class="panel panel-right p-8">
-                <h2 class="font-black text-slate-900 uppercase text-sm tracking-widest mb-6 text-center">Pourquoi nous ?</h2>
+            <!-- PAGE 4 : DOS (CTA) -->
+            <div class="page page-back">
+                <h2 class="cta-title">Prêt à Réussir ?</h2>
+                <p class="cta-subtitle">Lance ton blocus intelligent dès maintenant !</p>
 
-                <ul class="space-y-3 mb-8">
-                    <li class="flex items-center gap-3 text-[10px] font-bold text-slate-600 transition-transform hover:translate-x-2">
-                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                        GAIN DE TEMPS MASSIF
-                    </li>
-                    <li class="flex items-center gap-3 text-[10px] font-bold text-slate-600 transition-transform hover:translate-x-2">
-                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                        MÉMORISATION OPTIMISÉE
-                    </li>
-                    <li class="flex items-center gap-3 text-[10px] font-bold text-indigo-600 transition-transform hover:translate-x-2">
-                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white shadow-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                        ACCÈS 100% GRATUIT
-                    </li>
-                </ul>
-
-                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 text-center border-2 border-indigo-100 shadow-lg">
-                    <p class="text-[9px] font-black text-indigo-600 uppercase mb-4 tracking-widest">Lance ton blocus</p>
-                    <div class="qr-placeholder mb-4 flex items-center justify-center transition-transform hover:scale-105">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://projet-blocus.vercel.app" class="w-full h-full" alt="QR Code">
-                    </div>
-                    <button class="cta-button" onclick="window.open('https://projet-blocus.vercel.app', '_blank')">Découvrir le site</button>
+                <div class="qr-container">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://projet-blocus.vercel.app"
+                         class="qr-code" alt="QR Code">
                 </div>
 
-                <div class="mt-6 text-center">
-                    <img src="assets/images/locus_heureux.png"
-                         onerror="this.src='assets/images/Locus_aile.png'"
-                         class="w-24 mx-auto mascot-interactive" alt="Locus Victoire">
-                </div>
+                <button class="cta-button-big" onclick="window.open('https://projet-blocus.vercel.app', '_blank')">
+                    Découvrir Maintenant
+                </button>
+
+                <img src="assets/images/locus_heureux.png"
+                     onerror="this.src='assets/images/Locus_aile.png'"
+                     class="mascot-cta" alt="Locus">
             </div>
 
         </div>
     </div>
 
-    <script>
-        let isOpened = false;
+    <!-- Boutons de navigation -->
+    <div class="nav-buttons">
+        <button class="nav-btn" id="prevBtn" onclick="previousPage()">
+            <svg viewBox="0 0 24 24" fill="none"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="page-indicator" id="pageIndicator">1 / 4</div>
+        <button class="nav-btn" id="nextBtn" onclick="nextPage()">
+            <svg viewBox="0 0 24 24" fill="none"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+    </div>
 
-        // Créer les particules flottantes
+    <script>
+        let currentState = 0;
+        const maxState = 3;
+
+        // Créer des particules colorées
         function createParticles() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA', '#FF8E53'];
             const particlesContainer = document.getElementById('particles');
-            const particleCount = 30;
+            const particleCount = 20;
 
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 20 + 's';
-                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particle.style.bottom = '0';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.animationDuration = (20 + Math.random() * 10) + 's';
                 particlesContainer.appendChild(particle);
             }
         }
 
-        // Animation de compteur pour les statistiques
+        // Animation de compteur
         function animateCounter(id, target, suffix = '', duration = 2000) {
             const element = document.getElementById(id);
+            if (!element) return;
+
             const startTime = performance.now();
 
             function update(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-
-                // Easing function (ease-out)
                 const easeOut = 1 - Math.pow(1 - progress, 3);
                 const current = Math.floor(easeOut * target);
 
@@ -690,72 +751,59 @@
             requestAnimationFrame(update);
         }
 
-        // Toggle brochure avec animations
-        function toggleBrochure() {
-            const brochure = document.getElementById('brochure');
-            const scene = document.getElementById('scene');
-            const instruction = document.getElementById('instruction');
+        // Navigation suivante
+        function nextPage() {
+            if (currentState < maxState) {
+                currentState++;
+                updateBrochure();
 
-            if (brochure.classList.contains('closed')) {
-                brochure.classList.remove('closed');
-                brochure.classList.add('open');
-                scene.style.transform = "rotateX(10deg) rotateY(10deg)";
-                instruction.textContent = "Cliquer pour fermer";
-                isOpened = true;
-
-                // Animer les statistiques lors de l'ouverture
-                setTimeout(() => {
-                    animateCounter('stat1', 70, '%', 2000);
-                    animateCounter('stat2', 15, 'h', 2500);
-                }, 500);
-
-            } else {
-                brochure.classList.remove('open');
-                brochure.classList.add('closed');
-                scene.style.transform = "rotateX(0deg) rotateY(0deg)";
-                instruction.textContent = "Cliquer pour ouvrir la brochure";
-                isOpened = false;
-
-                // Reset stats
-                document.getElementById('stat1').textContent = '0%';
-                document.getElementById('stat2').textContent = '0h';
+                // Animer les stats quand on arrive à la page 2
+                if (currentState === 1) {
+                    setTimeout(() => {
+                        animateCounter('stat1', 70, '%', 2000);
+                        animateCounter('stat2', 15, 'h', 2500);
+                    }, 300);
+                }
             }
         }
 
-        // Effet parallax sur le logo au mouvement de la souris
-        document.addEventListener('mousemove', (e) => {
-            const cover = document.getElementById('cover');
-            const logo = cover.querySelector('.logo-container');
+        // Navigation précédente
+        function previousPage() {
+            if (currentState > 0) {
+                currentState--;
+                updateBrochure();
 
-            if (!logo) return;
+                // Reset stats si on revient en arrière
+                if (currentState === 0) {
+                    document.getElementById('stat1').textContent = '0%';
+                    document.getElementById('stat2').textContent = '0h';
+                }
+            }
+        }
 
-            const rect = cover.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width - 0.5;
-            const y = (e.clientY - rect.top) / rect.height - 0.5;
+        // Mettre à jour la brochure
+        function updateBrochure() {
+            const brochure = document.getElementById('brochure');
+            brochure.className = `brochure state-${currentState}`;
 
-            logo.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
-        });
+            // Mettre à jour l'indicateur
+            document.getElementById('pageIndicator').textContent = `${currentState + 1} / 4`;
 
-        // Initialisation au chargement
+            // Désactiver les boutons si nécessaire
+            document.getElementById('prevBtn').classList.toggle('disabled', currentState === 0);
+            document.getElementById('nextBtn').classList.toggle('disabled', currentState === maxState);
+        }
+
+        // Initialisation
         window.addEventListener('DOMContentLoaded', () => {
             createParticles();
-
-            // Masquer l'instruction après 5 secondes si la brochure est ouverte
-            setTimeout(() => {
-                if (isOpened) {
-                    document.getElementById('instruction').classList.add('hidden');
-                }
-            }, 5000);
+            updateBrochure();
         });
 
-        // Easter egg : double-clic sur une mascotte change son expression
-        document.querySelectorAll('.mascot-interactive').forEach(mascot => {
-            mascot.addEventListener('dblclick', () => {
-                mascot.style.transform = 'scale(1.3) rotate(360deg)';
-                setTimeout(() => {
-                    mascot.style.transform = '';
-                }, 600);
-            });
+        // Navigation au clavier
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextPage();
+            if (e.key === 'ArrowLeft') previousPage();
         });
     </script>
 </body>

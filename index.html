@@ -18,7 +18,6 @@
             --indigo: #6366F1;
             --indigo-light: #818CF8;
             --coral: #FF8B7B;
-            --gold: #F59E0B;
             --dark: #1E293B;
             --shadow: rgba(0, 0, 0, 0.15);
         }
@@ -31,11 +30,9 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            position: relative;
             padding: 2rem;
         }
 
-        /* Particules subtiles */
         body::before {
             content: '';
             position: fixed;
@@ -49,82 +46,99 @@
             pointer-events: none;
         }
 
-        /* Conteneur principal */
-        .book-container {
-            perspective: 2000px;
-            width: 800px;
-            height: 550px;
+        /* Conteneur de la brochure */
+        .brochure-container {
+            perspective: 2500px;
+            width: 900px;
+            height: 600px;
             position: relative;
         }
 
-        .book {
+        .brochure {
             width: 100%;
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transform: rotateY(-15deg);
-            transition: transform 0.6s ease;
         }
 
-        /* Page de la brochure */
-        .page {
+        /* Page double (recto-verso) */
+        .page-double {
             position: absolute;
-            width: 400px;
-            height: 550px;
+            width: 450px;
+            height: 600px;
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+
+        /* Face recto d'une page */
+        .page-front,
+        .page-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
             background: var(--cream);
             border: 1px solid rgba(0,0,0,0.08);
             box-shadow: 0 10px 40px var(--shadow);
-            transform-style: preserve-3d;
-            transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
-            backface-visibility: visible;
+            overflow: hidden;
         }
 
-        /* Dos de chaque page */
-        .page::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: var(--beige);
-            backface-visibility: hidden;
+        .page-back {
             transform: rotateY(180deg);
-        }
-
-        /* Page de droite (recto) */
-        .page-right {
-            left: 400px;
-            transform-origin: left;
-        }
-
-        /* Page de gauche (verso) */
-        .page-left {
-            right: 400px;
-            transform-origin: right;
         }
 
         /* Contenu des pages */
         .page-content {
-            position: relative;
-            width: 100%;
-            height: 100%;
             padding: 3rem 2.5rem;
-            backface-visibility: hidden;
-            overflow: hidden;
+            height: 100%;
+            overflow: auto;
         }
 
-        /* PAGE 1 : COUVERTURE */
-        .cover {
+        /* COUVERTURE (première page double) */
+        .cover-page {
+            left: 450px;
+            transform-origin: left;
+            z-index: 3;
+        }
+
+        .brochure.state-1 .cover-page,
+        .brochure.state-2 .cover-page {
+            transform: rotateY(-180deg);
+        }
+
+        /* PAGE INTÉRIEURE (deuxième page double) */
+        .inner-page {
+            left: 450px;
+            transform-origin: left;
+            z-index: 2;
+        }
+
+        .brochure.state-2 .inner-page {
+            transform: rotateY(-180deg);
+        }
+
+        /* PAGE FIXE DE GAUCHE (dos de la brochure fermée) */
+        .back-cover {
+            left: 0;
+            z-index: 1;
+            background: var(--beige);
+        }
+
+        /* === STYLES DES CONTENUS === */
+
+        /* COUVERTURE (recto) */
+        .cover-front {
             background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-light) 100%);
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            color: white;
             position: relative;
         }
 
-        .cover::after {
+        .cover-front::after {
             content: '';
             position: absolute;
             top: 0;
@@ -135,7 +149,7 @@
             opacity: 0.3;
         }
 
-        .cover .logo {
+        .logo {
             width: 140px;
             height: 140px;
             margin-bottom: 2rem;
@@ -144,7 +158,7 @@
             z-index: 2;
         }
 
-        .cover h1 {
+        .cover-front h1 {
             font-family: 'Playfair Display', serif;
             font-size: 3rem;
             font-weight: 900;
@@ -156,7 +170,7 @@
             z-index: 2;
         }
 
-        .cover .tagline {
+        .tagline {
             font-size: 1rem;
             font-weight: 600;
             opacity: 0.95;
@@ -165,7 +179,7 @@
             z-index: 2;
         }
 
-        .cover .badge {
+        .badge {
             background: rgba(255,255,255,0.2);
             backdrop-filter: blur(10px);
             padding: 0.6rem 1.2rem;
@@ -177,12 +191,8 @@
             z-index: 2;
         }
 
-        /* PAGE 2 : MISSION */
-        .mission-page {
-            background: var(--cream);
-        }
-
-        .mission-page h2 {
+        /* PAGE 2 : MISSION (verso de la couverture) */
+        .page-title {
             font-family: 'Playfair Display', serif;
             font-size: 2rem;
             color: var(--indigo);
@@ -207,7 +217,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
-            margin-top: 2rem;
+            margin: 2rem 0;
         }
 
         .stat-card {
@@ -238,29 +248,14 @@
             font-weight: 600;
         }
 
-        .mascot-bottom {
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-
-        .mascot-bottom img {
+        .mascot-img {
             width: 100px;
             filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+            display: block;
+            margin: 0 auto;
         }
 
         /* PAGE 3 : FONCTIONNALITÉS */
-        .features-page {
-            background: var(--cream);
-        }
-
-        .features-page h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            color: var(--indigo);
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
         .feature {
             background: white;
             padding: 1.2rem;
@@ -299,7 +294,7 @@
         }
 
         /* PAGE 4 : CTA */
-        .cta-page {
+        .cta-content {
             background: linear-gradient(135deg, var(--coral) 0%, #FF6B6B 100%);
             color: white;
             display: flex;
@@ -307,16 +302,18 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            height: 100%;
+            padding: 3rem 2.5rem;
         }
 
-        .cta-page h2 {
+        .cta-content h2 {
             font-family: 'Playfair Display', serif;
             font-size: 2.5rem;
             margin-bottom: 1rem;
             text-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        .cta-page p {
+        .cta-content p {
             font-size: 1.1rem;
             margin-bottom: 2rem;
             opacity: 0.95;
@@ -409,165 +406,131 @@
             min-width: 60px;
             text-align: center;
         }
-
-        /* États des pages */
-        /* État initial - Couverture fermée */
-        .book.page-0 .page-1 {
-            transform: rotateY(0deg);
-        }
-
-        /* État 1 - Couverture ouverte, on voit la page 2 */
-        .book.page-1 .page-1 {
-            transform: rotateY(-180deg);
-        }
-
-        /* État 2 - Page 2 tournée, on voit la page 3 */
-        .book.page-2 .page-1 {
-            transform: rotateY(-180deg);
-        }
-
-        .book.page-2 .page-2 {
-            transform: rotateY(-180deg);
-        }
-
-        /* État 3 - Page 3 tournée, on voit la page 4 (CTA) */
-        .book.page-3 .page-1 {
-            transform: rotateY(-180deg);
-        }
-
-        .book.page-3 .page-2 {
-            transform: rotateY(-180deg);
-        }
-
-        .book.page-3 .page-3 {
-            transform: rotateY(-180deg);
-        }
-
-        /* Animation du livre */
-        .book.page-1,
-        .book.page-2,
-        .book.page-3 {
-            transform: rotateY(0deg);
-        }
-
-        /* Ombres de pages */
-        .page {
-            box-shadow:
-                0 10px 40px var(--shadow),
-                inset -3px 0 8px rgba(0,0,0,0.05);
-        }
     </style>
 </head>
 <body>
 
-    <div class="book-container">
-        <div class="book page-0" id="book">
+    <div class="brochure-container">
+        <div class="brochure state-0" id="brochure">
 
-            <!-- PAGE 1 (Couverture) -->
-            <div class="page page-right page-1">
-                <div class="page-content cover">
-                    <img src="assets/images/Locus_logo2.png"
-                         onerror="this.src='assets/images/locus_base.png'"
-                         class="logo" alt="Locus">
-                    <h1>PROJET<br>BLOCUS</h1>
-                    <p class="tagline">L'IA qui transforme ton syllabus en réussite</p>
-                    <div class="badge">HEAJ 2026 • Bastien Festor</div>
+            <!-- PAGE FIXE (dos) -->
+            <div class="page-double back-cover">
+                <div class="page-front">
+                    <div class="page-content" style="display: flex; align-items: center; justify-content: center;">
+                        <p style="color: var(--dark); opacity: 0.3; font-size: 0.9rem; text-align: center;">
+                            Dos de la brochure
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <!-- PAGE 2 (Mission) -->
-            <div class="page page-right page-2">
-                <div class="page-content mission-page">
-                    <h2>Notre Mission</h2>
-                    <p class="mission-text">
-                        Le blocus est une période <strong>cruciale mais stressante</strong>.
-                        80% du temps est perdu en tâches administratives au lieu de se concentrer sur l'apprentissage.
-                    </p>
-                    <p class="mission-text">
-                        <strong>Projet Blocus</strong> utilise l'IA pour automatiser ces tâches
-                        et te permettre de te concentrer sur ce qui compte vraiment : <strong>réussir tes examens</strong>.
-                    </p>
-
-                    <div class="stats-container">
-                        <div class="stat-card">
-                            <span class="stat-number" id="stat1">0%</span>
-                            <span class="stat-label">Étudiants débordés</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-number" id="stat2">0h</span>
-                            <span class="stat-label">Perdues / semaine</span>
-                        </div>
+            <!-- COUVERTURE (page double 1) -->
+            <div class="page-double cover-page">
+                <!-- RECTO : Couverture -->
+                <div class="page-front cover-front">
+                    <div class="page-content">
+                        <img src="assets/images/Locus_logo2.png"
+                             onerror="this.src='assets/images/locus_base.png'"
+                             class="logo" alt="Locus">
+                        <h1>PROJET<br>BLOCUS</h1>
+                        <p class="tagline">L'IA qui transforme ton syllabus en réussite</p>
+                        <div class="badge">HEAJ 2026 • Bastien Festor</div>
                     </div>
+                </div>
 
-                    <div class="mascot-bottom">
+                <!-- VERSO : Mission -->
+                <div class="page-back">
+                    <div class="page-content">
+                        <h2 class="page-title">Notre Mission</h2>
+                        <p class="mission-text">
+                            Le blocus est une période <strong>cruciale mais stressante</strong>.
+                            80% du temps est perdu en tâches administratives au lieu de se concentrer sur l'apprentissage.
+                        </p>
+                        <p class="mission-text">
+                            <strong>Projet Blocus</strong> utilise l'IA pour automatiser ces tâches
+                            et te permettre de te concentrer sur ce qui compte vraiment : <strong>réussir tes examens</strong>.
+                        </p>
+
+                        <div class="stats-container">
+                            <div class="stat-card">
+                                <span class="stat-number" id="stat1">0%</span>
+                                <span class="stat-label">Étudiants débordés</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="stat2">0h</span>
+                                <span class="stat-label">Perdues / semaine</span>
+                            </div>
+                        </div>
+
                         <img src="assets/images/locus_question.png"
                              onerror="this.src='assets/images/locus_sommeil.png'"
-                             alt="Locus">
+                             class="mascot-img" style="margin-top: 1.5rem;" alt="Locus">
                     </div>
                 </div>
             </div>
 
-            <!-- PAGE 3 (Fonctionnalités) -->
-            <div class="page page-right page-3">
-                <div class="page-content features-page">
-                    <h2>Fonctionnalités</h2>
+            <!-- PAGE INTÉRIEURE (page double 2) -->
+            <div class="page-double inner-page">
+                <!-- RECTO : Fonctionnalités -->
+                <div class="page-front">
+                    <div class="page-content">
+                        <h2 class="page-title">Fonctionnalités</h2>
 
-                    <div class="feature">
-                        <img src="assets/images/locus_lecture.png"
-                             onerror="this.src='assets/images/locus_base.png'"
-                             class="feature-icon" alt="Lecture">
-                        <div>
-                            <h3>📚 Synthèse Magique</h3>
-                            <p>Uploade ton cours, l'IA génère ton résumé structuré en 60 secondes.</p>
+                        <div class="feature">
+                            <img src="assets/images/locus_lecture.png"
+                                 onerror="this.src='assets/images/locus_base.png'"
+                                 class="feature-icon" alt="Lecture">
+                            <div>
+                                <h3>📚 Synthèse Magique</h3>
+                                <p>Uploade ton cours, l'IA génère ton résumé structuré en 60 secondes.</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="feature">
-                        <img src="assets/images/locus_oeil.png"
-                             onerror="this.src='assets/images/locus_base.png'"
-                             class="feature-icon" alt="Quiz">
-                        <div>
-                            <h3>🧠 Mémorisation Active</h3>
-                            <p>Quiz et Flashcards générés automatiquement pour valider tes acquis.</p>
+                        <div class="feature">
+                            <img src="assets/images/locus_oeil.png"
+                                 onerror="this.src='assets/images/locus_base.png'"
+                                 class="feature-icon" alt="Quiz">
+                            <div>
+                                <h3>🧠 Mémorisation Active</h3>
+                                <p>Quiz et Flashcards générés automatiquement pour valider tes acquis.</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="feature">
-                        <img src="assets/images/locus_casque.png"
-                             onerror="this.src='assets/images/locus_base.png'"
-                             class="feature-icon" alt="Focus">
-                        <div>
-                            <h3>⏱️ Focus Pomodoro</h3>
-                            <p>Minuteur intelligent pour rester concentré et suivre tes objectifs.</p>
+                        <div class="feature">
+                            <img src="assets/images/locus_casque.png"
+                                 onerror="this.src='assets/images/locus_base.png'"
+                                 class="feature-icon" alt="Focus">
+                            <div>
+                                <h3>⏱️ Focus Pomodoro</h3>
+                                <p>Minuteur intelligent pour rester concentré et suivre tes objectifs.</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="mascot-bottom">
                         <img src="assets/images/locus_presentation.png"
                              onerror="this.src='assets/images/locus_base.png'"
-                             alt="Locus">
+                             class="mascot-img" style="margin-top: 1.5rem;" alt="Locus">
                     </div>
                 </div>
-            </div>
 
-            <!-- PAGE 4 (CTA - Dos) -->
-            <div class="page page-right page-4">
-                <div class="page-content cta-page">
-                    <h2>Prêt à Réussir ?</h2>
-                    <p>Lance ton blocus intelligent dès maintenant !</p>
+                <!-- VERSO : CTA -->
+                <div class="page-back">
+                    <div class="cta-content">
+                        <h2>Prêt à Réussir ?</h2>
+                        <p>Lance ton blocus intelligent dès maintenant !</p>
 
-                    <div class="qr-box">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://projet-blocus.vercel.app"
-                             alt="QR Code">
+                        <div class="qr-box">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://projet-blocus.vercel.app"
+                                 alt="QR Code">
+                        </div>
+
+                        <button class="cta-button" onclick="window.open('https://projet-blocus.vercel.app', '_blank')">
+                            Découvrir
+                        </button>
+
+                        <img src="assets/images/locus_heureux.png"
+                             onerror="this.src='assets/images/Locus_aile.png'"
+                             class="mascot-cta" alt="Locus">
                     </div>
-
-                    <button class="cta-button" onclick="window.open('https://projet-blocus.vercel.app', '_blank')">
-                        Découvrir
-                    </button>
-
-                    <img src="assets/images/locus_heureux.png"
-                         onerror="this.src='assets/images/Locus_aile.png'"
-                         class="mascot-cta" alt="Locus">
                 </div>
             </div>
 
@@ -581,7 +544,7 @@
                 <polyline points="15 18 9 12 15 6"/>
             </svg>
         </button>
-        <div class="page-indicator" id="pageIndicator">1 / 4</div>
+        <div class="page-indicator" id="pageIndicator">1 / 3</div>
         <button class="nav-btn" id="nextBtn" onclick="nextPage()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="9 18 15 12 9 6"/>
@@ -590,20 +553,21 @@
     </div>
 
     <script>
-        let currentPage = 0;
-        const totalPages = 4;
+        let currentState = 0;
+        const totalStates = 3; // 0: fermé, 1: couverture ouverte, 2: tout ouvert
 
-        function updateBook() {
-            const book = document.getElementById('book');
-            book.className = `book page-${currentPage}`;
+        function updateBrochure() {
+            const brochure = document.getElementById('brochure');
+            brochure.className = `brochure state-${currentState}`;
 
-            document.getElementById('pageIndicator').textContent = `${currentPage + 1} / ${totalPages}`;
+            const pageNames = ['Fermée', 'Mission', 'CTA'];
+            document.getElementById('pageIndicator').textContent = `${currentState + 1} / ${totalStates}`;
 
-            document.getElementById('prevBtn').classList.toggle('disabled', currentPage === 0);
-            document.getElementById('nextBtn').classList.toggle('disabled', currentPage === totalPages - 1);
+            document.getElementById('prevBtn').classList.toggle('disabled', currentState === 0);
+            document.getElementById('nextBtn').classList.toggle('disabled', currentState === totalStates - 1);
 
-            // Animer les stats à la page 2
-            if (currentPage === 1) {
+            // Animer les stats à l'état 1
+            if (currentState === 1) {
                 setTimeout(() => {
                     animateCounter('stat1', 70, '%');
                     animateCounter('stat2', 15, 'h');
@@ -612,19 +576,18 @@
         }
 
         function nextPage() {
-            if (currentPage < totalPages - 1) {
-                currentPage++;
-                updateBook();
+            if (currentState < totalStates - 1) {
+                currentState++;
+                updateBrochure();
             }
         }
 
         function previousPage() {
-            if (currentPage > 0) {
-                currentPage--;
-                updateBook();
+            if (currentState > 0) {
+                currentState--;
+                updateBrochure();
 
-                // Reset stats si on revient
-                if (currentPage < 1) {
+                if (currentState < 1) {
                     document.getElementById('stat1').textContent = '0%';
                     document.getElementById('stat2').textContent = '0h';
                 }
@@ -659,7 +622,7 @@
         });
 
         // Init
-        updateBook();
+        updateBrochure();
     </script>
 </body>
 </html>

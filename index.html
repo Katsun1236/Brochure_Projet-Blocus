@@ -9,9 +9,11 @@
     <style>
         :root {
             --indigo-600: #4f46e5;
+            --indigo-500: #6366f1;
             --orange-500: #f97316;
             --slate-900: #0f172a;
             --paper-white: #ffffff;
+            --neon-glow: #818cf8;
         }
 
         body {
@@ -23,6 +25,45 @@
             align-items: center;
             justify-content: center;
             perspective: 2500px;
+            position: relative;
+        }
+
+        /* Particules flottantes en arrière-plan */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--indigo-500);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float-particle 20s infinite ease-in-out;
+        }
+
+        @keyframes float-particle {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.1;
+            }
         }
 
         /* --- STRUCTURE DU TRIPTYQUE --- */
@@ -32,6 +73,7 @@
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 10;
         }
 
         /* Conteneur de la brochure */
@@ -116,7 +158,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--indigo-600), #6366f1);
+            background: linear-gradient(135deg, var(--indigo-600), #6366f1, #818cf8);
             color: white;
             z-index: 10;
             backface-visibility: hidden;
@@ -128,8 +170,9 @@
             justify-content: center;
             padding: 2.5rem;
             text-align: center;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1), 0 0 40px rgba(129, 140, 248, 0.3);
             cursor: pointer;
+            overflow: hidden;
         }
 
         /* Effet de brillance sur la couverture */
@@ -140,8 +183,62 @@
             right: 0;
             width: 60%;
             height: 100%;
-            background: linear-gradient(to left, rgba(255,255,255,0.1), transparent);
+            background: linear-gradient(to left, rgba(255,255,255,0.15), transparent);
             pointer-events: none;
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* Logo avec effet de parallax */
+        .logo-container {
+            width: 160px;
+            height: 160px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-container:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3));
+            animation: float-logo 4s ease-in-out infinite;
+        }
+
+        @keyframes float-logo {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-15px) rotate(3deg);
+            }
+        }
+
+        /* Effet de lueur pulsante */
+        .glow-pulse {
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(129, 140, 248, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(255,255,255,0.8), 0 0 30px rgba(129, 140, 248, 0.5), 0 0 40px rgba(129, 140, 248, 0.3);
+            }
         }
 
         .brochure.open .cover {
@@ -186,12 +283,48 @@
         }
 
         .feature-card {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
             border-radius: 12px;
             padding: 1rem;
             margin-bottom: 0.75rem;
             border-left: 4px solid var(--indigo-600);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateX(8px) translateY(-4px);
+            box-shadow: -8px 8px 20px rgba(79, 70, 229, 0.2), 0 0 30px rgba(129, 140, 248, 0.1);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 0.5rem;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover .feature-card-icon {
+            transform: scale(1.2) rotate(5deg);
         }
 
         .brochure.open .feature-card {
@@ -215,7 +348,7 @@
         }
 
         .cta-button {
-            background: var(--orange-500);
+            background: linear-gradient(135deg, var(--orange-500), #fb923c);
             color: white;
             padding: 0.8rem 1.5rem;
             border-radius: 9999px;
@@ -223,15 +356,90 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3), 0 0 20px rgba(249, 115, 22, 0.2);
+            transition: all 0.3s ease;
             cursor: pointer;
             border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .cta-button:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.5), 0 0 40px rgba(249, 115, 22, 0.3);
+        }
+
+        .cta-button:active {
+            transform: translateY(0) scale(1);
+        }
+
+        /* Statistiques animées */
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #dc2626, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.1), transparent);
+            animation: scan 3s infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Mascotte interactive */
+        .mascot-interactive {
+            transition: transform 0.3s ease, filter 0.3s ease;
+            cursor: pointer;
+        }
+
+        .mascot-interactive:hover {
+            transform: scale(1.1) rotate(-5deg);
+            filter: drop-shadow(0 15px 30px rgba(79, 70, 229, 0.4));
+        }
+
+        .mascot-interactive:active {
+            transform: scale(0.95);
         }
 
         .qr-placeholder {
@@ -310,6 +518,9 @@
 </head>
 <body>
 
+    <!-- Particules flottantes en arrière-plan -->
+    <div class="particles" id="particles"></div>
+
     <div class="instruction" id="instruction">Cliquer pour ouvrir la brochure</div>
 
     <div class="scene" id="scene">
@@ -317,14 +528,13 @@
 
             <!-- 1. LA COUVERTURE (RECTO) -->
             <div class="cover" id="cover">
-                <div class="mascot-container">
-                    <!-- Tentative d'affichage de la mascotte locale -->
-                    <img src="assets/images/locus-neon-favicon.png"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
-                         class="mascot-img" alt="Locus">
-                    <div class="mascot-fallback hidden">🚀</div>
+                <div class="logo-container">
+                    <!-- Logo principal animé -->
+                    <img src="assets/images/Locus_logo2.png"
+                         onerror="this.src='assets/images/locus_base.png'"
+                         class="logo-img" alt="Projet Blocus">
                 </div>
-                <h1 class="text-3xl font-extrabold tracking-tighter mb-2">PROJET BLOCUS</h1>
+                <h1 class="text-3xl font-extrabold tracking-tighter mb-2 glow-pulse">PROJET BLOCUS</h1>
                 <p class="text-indigo-100 text-sm mb-12 font-medium">L'IA qui transforme ton syllabus en réussite.</p>
                 <div class="w-full h-1 bg-white/20 rounded-full mb-8"></div>
                 <p class="text-[10px] uppercase tracking-[0.3em] font-black opacity-60">HEAJ 2026 - Bastien Festor</p>
@@ -341,17 +551,20 @@
                 <p class="text-xs text-slate-500 leading-relaxed mb-6">Le blocus est une période de stress intense où 80% du temps est gâché en tâches administratives.</p>
 
                 <div class="space-y-4">
-                    <div class="p-4 bg-rose-50 rounded-xl border border-rose-100">
-                        <span class="block font-black text-rose-600 text-xl mb-1">70%</span>
+                    <div class="p-4 bg-rose-50 rounded-xl border border-rose-100 stat-card">
+                        <span class="block stat-number" id="stat1">0%</span>
                         <p class="text-[10px] text-slate-600 font-bold uppercase">des étudiants sont débordés par leurs synthèses.</p>
+                    </div>
+                    <div class="p-4 bg-amber-50 rounded-xl border border-amber-100 stat-card">
+                        <span class="block font-black text-amber-600 text-xl mb-1" id="stat2">0h</span>
+                        <p class="text-[10px] text-slate-600 font-bold uppercase">perdues par semaine en tâches répétitives.</p>
                     </div>
                 </div>
 
-                <div class="mt-auto pt-10 text-center">
-                    <img src="assets/images/locus-loupe.png"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
-                         class="w-32 mx-auto drop-shadow-xl" alt="Locus cherche">
-                    <div class="hidden text-4xl">🔍</div>
+                <div class="mt-auto pt-6 text-center">
+                    <img src="assets/images/locus_question.png"
+                         onerror="this.src='assets/images/locus_sommeil.png'"
+                         class="w-32 mx-auto drop-shadow-xl mascot-interactive" alt="Locus perplexe">
                 </div>
             </div>
 
@@ -364,24 +577,32 @@
 
                 <div class="space-y-3">
                     <div class="feature-card">
+                        <img src="assets/images/locus_lecture.png"
+                             onerror="this.src='assets/images/locus_base.png'"
+                             class="feature-card-icon" alt="Synthèse">
                         <h4 class="font-bold text-[10px] uppercase text-indigo-600 mb-1 tracking-wider">Synthèse Magique</h4>
                         <p class="text-[9px] text-slate-500 leading-tight">Uploade ton cours. L'IA génère ton résumé structuré en 60 secondes chrono.</p>
                     </div>
                     <div class="feature-card">
+                        <img src="assets/images/locus_oeil.png"
+                             onerror="this.src='assets/images/locus_base.png'"
+                             class="feature-card-icon" alt="Mémorisation">
                         <h4 class="font-bold text-[10px] uppercase text-indigo-600 mb-1 tracking-wider">Mémorisation Active</h4>
                         <p class="text-[9px] text-slate-500 leading-tight">Génère des Quiz et Flashcards basés sur tes propres notes pour valider tes acquis.</p>
                     </div>
                     <div class="feature-card">
+                        <img src="assets/images/locus_casque.png"
+                             onerror="this.src='assets/images/locus_base.png'"
+                             class="feature-card-icon" alt="Focus">
                         <h4 class="font-bold text-[10px] uppercase text-indigo-600 mb-1 tracking-wider">Focus Pomodoro</h4>
                         <p class="text-[9px] text-slate-500 leading-tight">Reste concentré avec notre minuteur et suis tes objectifs de session.</p>
                     </div>
                 </div>
 
                 <div class="mt-8 text-center">
-                    <img src="assets/images/locus-presentation-teaching.png"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
-                         class="w-32 mx-auto" alt="Locus enseigne">
-                    <div class="hidden text-4xl">🎓</div>
+                    <img src="assets/images/locus_presentation.png"
+                         onerror="this.src='assets/images/locus_base.png'"
+                         class="w-32 mx-auto mascot-interactive" alt="Locus enseigne">
                 </div>
             </div>
 
@@ -389,34 +610,39 @@
             <div class="panel panel-right p-8">
                 <h2 class="font-black text-slate-900 uppercase text-sm tracking-widest mb-6 text-center">Pourquoi nous ?</h2>
 
-                <ul class="space-y-3 mb-10">
-                    <li class="flex items-center gap-3 text-[10px] font-bold text-slate-600">
-                        <div class="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center gap-3 text-[10px] font-bold text-slate-600 transition-transform hover:translate-x-2">
+                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
                         GAIN DE TEMPS MASSIF
                     </li>
-                    <li class="flex items-center gap-3 text-[10px] font-bold text-slate-600">
-                        <div class="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <li class="flex items-center gap-3 text-[10px] font-bold text-slate-600 transition-transform hover:translate-x-2">
+                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
                         MÉMORISATION OPTIMISÉE
                     </li>
-                    <li class="flex items-center gap-3 text-[10px] font-bold text-indigo-600">
-                        <div class="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center text-white"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <li class="flex items-center gap-3 text-[10px] font-bold text-indigo-600 transition-transform hover:translate-x-2">
+                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
                         ACCÈS 100% GRATUIT
                     </li>
                 </ul>
 
-                <div class="bg-indigo-50 rounded-2xl p-6 text-center border border-indigo-100">
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 text-center border-2 border-indigo-100 shadow-lg">
                     <p class="text-[9px] font-black text-indigo-600 uppercase mb-4 tracking-widest">Lance ton blocus</p>
-                    <div class="qr-placeholder mb-4 flex items-center justify-center">
+                    <div class="qr-placeholder mb-4 flex items-center justify-center transition-transform hover:scale-105">
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://projet-blocus.vercel.app" class="w-full h-full" alt="QR Code">
                     </div>
                     <button class="cta-button" onclick="window.open('https://projet-blocus.vercel.app', '_blank')">Découvrir le site</button>
                 </div>
 
                 <div class="mt-6 text-center">
-                    <img src="assets/images/locus-wings-open-hero.png"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
-                         class="w-20 mx-auto" alt="Locus Victoire">
-                    <div class="hidden text-4xl">✨</div>
+                    <img src="assets/images/locus_heureux.png"
+                         onerror="this.src='assets/images/Locus_aile.png'"
+                         class="w-24 mx-auto mascot-interactive" alt="Locus Victoire">
                 </div>
             </div>
 
@@ -426,6 +652,45 @@
     <script>
         let isOpened = false;
 
+        // Créer les particules flottantes
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Animation de compteur pour les statistiques
+        function animateCounter(id, target, suffix = '', duration = 2000) {
+            const element = document.getElementById(id);
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Easing function (ease-out)
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(easeOut * target);
+
+                element.textContent = current + suffix;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Toggle brochure avec animations
         function toggleBrochure() {
             const brochure = document.getElementById('brochure');
             const scene = document.getElementById('scene');
@@ -434,25 +699,64 @@
             if (brochure.classList.contains('closed')) {
                 brochure.classList.remove('closed');
                 brochure.classList.add('open');
-                // On incline la scène pour un meilleur angle de vue une fois ouvert
                 scene.style.transform = "rotateX(10deg) rotateY(10deg)";
                 instruction.textContent = "Cliquer pour fermer";
                 isOpened = true;
+
+                // Animer les statistiques lors de l'ouverture
+                setTimeout(() => {
+                    animateCounter('stat1', 70, '%', 2000);
+                    animateCounter('stat2', 15, 'h', 2500);
+                }, 500);
+
             } else {
                 brochure.classList.remove('open');
                 brochure.classList.add('closed');
                 scene.style.transform = "rotateX(0deg) rotateY(0deg)";
                 instruction.textContent = "Cliquer pour ouvrir la brochure";
                 isOpened = false;
+
+                // Reset stats
+                document.getElementById('stat1').textContent = '0%';
+                document.getElementById('stat2').textContent = '0h';
             }
         }
 
-        // Masquer l'instruction après 5 secondes si la brochure est ouverte
-        setTimeout(() => {
-            if (isOpened) {
-                document.getElementById('instruction').classList.add('hidden');
-            }
-        }, 5000);
+        // Effet parallax sur le logo au mouvement de la souris
+        document.addEventListener('mousemove', (e) => {
+            const cover = document.getElementById('cover');
+            const logo = cover.querySelector('.logo-container');
+
+            if (!logo) return;
+
+            const rect = cover.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+            logo.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+        });
+
+        // Initialisation au chargement
+        window.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+
+            // Masquer l'instruction après 5 secondes si la brochure est ouverte
+            setTimeout(() => {
+                if (isOpened) {
+                    document.getElementById('instruction').classList.add('hidden');
+                }
+            }, 5000);
+        });
+
+        // Easter egg : double-clic sur une mascotte change son expression
+        document.querySelectorAll('.mascot-interactive').forEach(mascot => {
+            mascot.addEventListener('dblclick', () => {
+                mascot.style.transform = 'scale(1.3) rotate(360deg)';
+                setTimeout(() => {
+                    mascot.style.transform = '';
+                }, 600);
+            });
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brochure Interactive 3D - Projet Blocus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --indigo-600: #4f46e5;
+            --orange-500: #f97316;
+            --slate-900: #0f172a;
+            --paper-white: #ffffff;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 2500px;
+        }
+
+        /* --- STRUCTURE DU TRIPTYQUE --- */
+        .scene {
+            width: 400px;
+            height: 550px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Conteneur de la brochure */
+        .brochure {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Style de base d'un panneau avec texture papier */
+        .panel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--paper-white);
+            backface-visibility: hidden;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.02);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+            /* Texture de papier subtile */
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.01) 2px, rgba(0,0,0,0.01) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.01) 2px, rgba(0,0,0,0.01) 4px);
+        }
+
+        /* Effet de brillance sur les panneaux */
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s ease;
+            pointer-events: none;
+        }
+
+        .brochure.open .panel::before {
+            left: 100%;
+        }
+
+        /* --- VOLET GAUCHE (Interieur Problème) --- */
+        .panel-left {
+            transform-origin: right;
+            left: -100%;
+            transform: rotateY(180deg);
+            z-index: 2;
+            transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* --- VOLET CENTRAL (Fixe - Solutions) --- */
+        .panel-center {
+            z-index: 1;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+
+        /* --- VOLET DROIT (Couverture / CTA) --- */
+        .panel-right {
+            transform-origin: left;
+            left: 100%;
+            transform: rotateY(-180deg);
+            z-index: 2;
+            transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* --- ÉTATS OUVERT / FERMÉ --- */
+        .brochure.closed .panel-left {
+            transform: rotateY(175deg);
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .brochure.closed .panel-right {
+            transform: rotateY(-175deg);
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* État "Fermé" vue de face (La couverture) */
+        .cover {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--indigo-600), #6366f1);
+            color: white;
+            z-index: 10;
+            backface-visibility: hidden;
+            transform-origin: left;
+            transition: transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        /* Effet de brillance sur la couverture */
+        .cover::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(to left, rgba(255,255,255,0.1), transparent);
+            pointer-events: none;
+        }
+
+        .brochure.open .cover {
+            transform: rotateY(-160deg);
+        }
+
+        /* Animation d'entrée au chargement */
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .scene {
+            animation: slideIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* --- DESIGN DES CONTENUS --- */
+        .mascot-container {
+            width: 140px;
+            height: 140px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .mascot-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--indigo-600);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .brochure.open .feature-card {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .brochure.open .feature-card:nth-child(1) { animation-delay: 0.2s; }
+        .brochure.open .feature-card:nth-child(2) { animation-delay: 0.4s; }
+        .brochure.open .feature-card:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cta-button {
+            background: var(--orange-500);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .qr-placeholder {
+            width: 100px;
+            height: 100px;
+            background: white;
+            padding: 8px;
+            border-radius: 10px;
+            margin: 0 auto;
+            border: 2px solid #e2e8f0;
+        }
+
+        /* --- INDICATEUR --- */
+        .instruction {
+            position: fixed;
+            bottom: 40px;
+            background: var(--slate-900);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            pointer-events: none;
+            animation: pulse 2s infinite;
+            transition: opacity 0.3s ease;
+        }
+
+        .instruction.hidden {
+            opacity: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Fallback Mascot */
+        .mascot-fallback {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Effet de grain de papier */
+        .panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* Ombres portées dynamiques */
+        .brochure.open .panel-left {
+            box-shadow: -5px 5px 25px rgba(0,0,0,0.15);
+        }
+
+        .brochure.open .panel-right {
+            box-shadow: 5px 5px 25px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="instruction" id="instruction">Cliquer pour ouvrir la brochure</div>
+
+    <div class="scene" id="scene">
+        <div class="brochure closed" id="brochure" onclick="toggleBrochure()">
+
+            <!-- 1. LA COUVERTURE (RECTO) -->
+            <div class="cover" id="cover">
+                <div class="mascot-container">
+                    <!-- Tentative d'affichage de la mascotte locale -->
+                    <img src="assets/images/locus-neon-favicon.png"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                         class="mascot-img" alt="Locus">
+                    <div class="mascot-fallback hidden">🚀</div>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tighter mb-2">PROJET BLOCUS</h1>
+                <p class="text-indigo-100 text-sm mb-12 font-medium">L'IA qui transforme ton syllabus en réussite.</p>
+                <div class="w-full h-1 bg-white/20 rounded-full mb-8"></div>
+                <p class="text-[10px] uppercase tracking-[0.3em] font-black opacity-60">HEAJ 2026 - Bastien Festor</p>
+            </div>
+
+            <!-- 2. PANNEAU GAUCHE (LE CONSTAT / PROBLÈME) -->
+            <div class="panel panel-left p-8">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="w-8 h-8 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <h2 class="font-black text-slate-900 uppercase text-sm tracking-widest">Le Constat</h2>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed mb-6">Le blocus est une période de stress intense où 80% du temps est gâché en tâches administratives.</p>
+
+                <div class="space-y-4">
+                    <div class="p-4 bg-rose-50 rounded-xl border border-rose-100">
+                        <span class="block font-black text-rose-600 text-xl mb-1">70%</span>
+                        <p class="text-[10px] text-slate-600 font-bold uppercase">des étudiants sont débordés par leurs synthèses.</p>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-10 text-center">
+                    <img src="assets/images/locus-loupe.png"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+                         class="w-32 mx-auto drop-shadow-xl" alt="Locus cherche">
+                    <div class="hidden text-4xl">🔍</div>
+                </div>
+            </div>
+
+            <!-- 3. PANNEAU CENTRAL (SOLUTIONS) -->
+            <div class="panel panel-center p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-indigo-600 font-black text-lg uppercase tracking-tighter">Écosystème Intelligent</h2>
+                    <div class="w-12 h-1 bg-indigo-600 mx-auto mt-2"></div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="feature-card">
+                        <h4 class="font-bold text-[10px] uppercase text-indigo-600 mb-1 tracking-wider">Synthèse Magique</h4>
+                        <p class="text-[9px] text-slate-500 leading-tight">Uploade ton cours. L'IA génère ton résumé structuré en 60 secondes chrono.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4 class="font-bold text-[10px] uppercase text-indigo-600 mb-1 tracking-wider">Mémorisation Active</h4>
+                        <p class="text-[9px] text-slate-500 leading-tight">Génère des Quiz et Flashcards basés sur tes propres notes pour valider tes acquis.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4 class="font-bold text-[10px] uppercase text-indigo-600 mb-1 tracking-wider">Focus Pomodoro</h4>
+                        <p class="text-[9px] text-slate-500 leading-tight">Reste concentré avec notre minuteur et suis tes objectifs de session.</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <img src="assets/images/locus-presentation-teaching.png"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+                         class="w-32 mx-auto" alt="Locus enseigne">
+                    <div class="hidden text-4xl">🎓</div>
+                </div>
+            </div>
+
+            <!-- 4. PANNEAU DROIT (BÉNÉFICES & CTA) -->
+            <div class="panel panel-right p-8">
+                <h2 class="font-black text-slate-900 uppercase text-sm tracking-widest mb-6 text-center">Pourquoi nous ?</h2>
+
+                <ul class="space-y-3 mb-10">
+                    <li class="flex items-center gap-3 text-[10px] font-bold text-slate-600">
+                        <div class="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        GAIN DE TEMPS MASSIF
+                    </li>
+                    <li class="flex items-center gap-3 text-[10px] font-bold text-slate-600">
+                        <div class="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        MÉMORISATION OPTIMISÉE
+                    </li>
+                    <li class="flex items-center gap-3 text-[10px] font-bold text-indigo-600">
+                        <div class="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center text-white"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        ACCÈS 100% GRATUIT
+                    </li>
+                </ul>
+
+                <div class="bg-indigo-50 rounded-2xl p-6 text-center border border-indigo-100">
+                    <p class="text-[9px] font-black text-indigo-600 uppercase mb-4 tracking-widest">Lance ton blocus</p>
+                    <div class="qr-placeholder mb-4 flex items-center justify-center">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://projet-blocus.vercel.app" class="w-full h-full" alt="QR Code">
+                    </div>
+                    <button class="cta-button" onclick="window.open('https://projet-blocus.vercel.app', '_blank')">Découvrir le site</button>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <img src="assets/images/locus-wings-open-hero.png"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+                         class="w-20 mx-auto" alt="Locus Victoire">
+                    <div class="hidden text-4xl">✨</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let isOpened = false;
+
+        function toggleBrochure() {
+            const brochure = document.getElementById('brochure');
+            const scene = document.getElementById('scene');
+            const instruction = document.getElementById('instruction');
+
+            if (brochure.classList.contains('closed')) {
+                brochure.classList.remove('closed');
+                brochure.classList.add('open');
+                // On incline la scène pour un meilleur angle de vue une fois ouvert
+                scene.style.transform = "rotateX(10deg) rotateY(10deg)";
+                instruction.textContent = "Cliquer pour fermer";
+                isOpened = true;
+            } else {
+                brochure.classList.remove('open');
+                brochure.classList.add('closed');
+                scene.style.transform = "rotateX(0deg) rotateY(0deg)";
+                instruction.textContent = "Cliquer pour ouvrir la brochure";
+                isOpened = false;
+            }
+        }
+
+        // Masquer l'instruction après 5 secondes si la brochure est ouverte
+        setTimeout(() => {
+            if (isOpened) {
+                document.getElementById('instruction').classList.add('hidden');
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

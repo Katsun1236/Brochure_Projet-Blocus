@@ -1,0 +1,28 @@
+# Configuration Netlify pour la Brochure 3D Projet Blocus
+
+[build]
+  # Pas de build nécessaire - site statique HTML/CSS/JS
+  publish = "."
+  command = "echo 'No build required - static site'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.environment]
+  # Variables d'environnement si nécessaire
+
+[[headers]]
+  # Cache statique pour les assets
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  # Headers de sécurité pour index.html
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
